@@ -1,0 +1,25 @@
+HOW TO USE SCITEX:
+
+Requirements:
+Linux, Java 11
+
+Setup:
+1. Put the scitex directory in a directory (e.g., xml_converter)
+2. Modification in main.py in scitex:
+	a. Change the jar file name from "grobid-core-0.7.2-SNAPSHOT-onejar.jar" to "grobid-core-0.7.2-onejar.jar"
+	b. Set INPUT = "scitex/scitexIn"
+	c. Set OUTPUT = "scitex/scitexOut/"
+3. Download grobid version 0.7.2 from: https://github.com/kermitt2/grobid
+4. Unzip grobid in the same directory as scitex (e.g., xml_converter). Rename the unzipped directory to "grobid".
+5. Make sure the scitex and grobid are in the same parent directory (e.g., xml_converter)
+6. Go to grobid directory from terminal and execute ./gradlew clean install (this step requires Java 11)
+
+Run Converter:
+1. Take whatever PDFs you want to convert and put them into the scitex/scitexIn directory
+2. To run the program, execute from the parent directory using the terminal: python3 scitex/main.py
+3. The output should be .tei.xml files present in scitex/scitexOut
+
+
+HOW TO READ THE CODE:
+main.py runs grobid on the input folder, then runs pdfalto on each pdf in the input folder, then runs scitex on the grobid and pdfalto outputs.
+grobidAltoStuff/scitex.py is the file that contains the main scitex functions.
