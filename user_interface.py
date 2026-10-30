@@ -823,6 +823,12 @@ with st.sidebar:
         on_change=queue_selected_category,
     )
 
+    category_questions = CQ_CATEGORIES[st.session_state.selected_category]
+
+    def format_question(cq_name: str) -> str:
+        number = category_questions.index(cq_name) + 1
+        return f"{number}. {CQ_DEFINITIONS[cq_name]['question']}"
+
     # Keep the original Selected Question card styling; make its question selectable.
     with st.container(key="selected_question_box"):
         st.markdown(
@@ -831,8 +837,8 @@ with st.sidebar:
         )
         selected_cq = st.selectbox(
             "Selected Question",
-            options=CQ_CATEGORIES[st.session_state.selected_category],
-            format_func=lambda cq_name: CQ_DEFINITIONS[cq_name]["question"],
+            options=category_questions,
+            format_func=format_question,
             key="selected_cq",
             on_change=queue_selected_query,
             label_visibility="collapsed",
@@ -840,7 +846,7 @@ with st.sidebar:
 
     # Streamlit 1.59 uses a single-line input; keep the native combobox
     # interactive and display its selected text in a wrapping CSS layer.
-    question_css_text = json.dumps(CQ_DEFINITIONS[selected_cq]["question"])
+    question_css_text = json.dumps(format_question(selected_cq))
     st.html(
         "<style>"
         ".st-key-selected_question_box { --cg-question-text: "
@@ -892,6 +898,9 @@ with st.sidebar:
             overflow-wrap: anywhere;
             overflow: visible;
             text-overflow: clip;
+        }
+        [role="listbox"][aria-label="Selected Question"] [role="presentation"] + [role="presentation"] {
+            margin-top: 0.5rem;
         }
         </style>
         """.replace("__CG_SELECTED_TEXT__", question_css_text)
