@@ -526,6 +526,10 @@ def render_paragraph_cards(dataframe: pd.DataFrame) -> None:
         )
 
 
+def reset_result_page() -> None:
+    st.session_state.result_page = 1
+
+
 # -----------------------------------------------------------------------------
 # Page configuration and visual styling
 # -----------------------------------------------------------------------------
@@ -689,7 +693,7 @@ st.markdown(
         .paragraph-id { color: var(--cg-accent); }
         .paragraph-text { color: #263b46; }
         .output-empty { border-color: #afc9c9; background: #f5fbfa; }
-        .selected-question-label { font-size:.85rem; font-weight:800; letter-spacing:.12em; color:#12676a; margin-bottom:7px; }
+        .selected-question-label { font-size:.64rem; font-weight:800; letter-spacing:.12em; color:#12676a; margin-bottom:7px; }
         /* Same Selected Question card appearance, with a native dropdown inside. */
         [data-testid="stSidebar"] .st-key-selected_question_box {
             white-space: normal;
@@ -1006,6 +1010,7 @@ if st.session_state.run_selected_query:
 
         st.session_state.result_json = result_json
         st.session_state.result_df = sparql_json_to_dataframe(result_json)
+        reset_result_page()
 
     except Exception as error:
         st.session_state.result_json = None
@@ -1058,6 +1063,36 @@ with st.container(border=True, height=480):  # height=680
         metric_1.metric("Rows", row_count)
         metric_2.metric("Columns", column_count)
 
+        size_column, page_column = st.columns(2)
+        with size_column:
+            page_size = st.selectbox(
+                "Rows per page",
+                options=[25, 50, 100, 250, 500],
+                index=2,
+                key="result_page_size",
+                on_change=reset_result_page,
+            )
+        page_count = max(1, (row_count + page_size - 1) // page_size)
+        st.session_state.result_page = min(
+            max(1, st.session_state.get("result_page", 1)), page_count
+        )
+        with page_column:
+            page_number = st.number_input(
+                "Page",
+                min_value=1,
+                max_value=page_count,
+                step=1,
+                key="result_page",
+            )
+        start_row = (page_number - 1) * page_size
+        end_row = min(start_row + page_size, row_count)
+        page_df = result_df.iloc[start_row:end_row]
+        st.caption(
+            f"Showing rows {start_row + 1 if row_count else 0:,}–{end_row:,} "
+            f"of {row_count:,} · Page {page_number:,} of {page_count:,}. "
+            "Downloads include all result rows."
+        )
+
         table_tab, readable_tab, graph_tab, json_tab = st.tabs(
             ["Table", "Readable text", "Graph", "Raw JSON"]
         )
@@ -1067,7 +1102,7 @@ with st.container(border=True, height=480):  # height=680
                 st.info("The query ran successfully, but no rows were returned.")
             else:
                 st.dataframe(
-                    result_df,
+                    page_df,
                     width="stretch",
                     hide_index=True,
                     height=450,
@@ -1083,14 +1118,14 @@ with st.container(border=True, height=480):  # height=680
                 )
 
         with readable_tab:
-            render_paragraph_cards(result_df)
+            render_paragraph_cards(page_df)
 
         with graph_tab:
-            dot_graph = dataframe_to_dot(result_df)
+            dot_graph = dataframe_to_dot(page_df)
             if dot_graph:
                 st.graphviz_chart(dot_graph, width="stretch")
-                if len(result_df) > 80:
-                    st.caption("The graph view shows only the first 80 result rows.")
+                if len(page_df) > 80:
+                    st.caption("The graph view shows only the first 80 rows on this page.")
             else:
                 st.info(
                     "A graph is shown when the result contains at least two "
@@ -1098,7 +1133,17 @@ with st.container(border=True, height=480):  # height=680
                 )
 
         with json_tab:
-            st.json(st.session_state.result_json, expanded=False)
+            result_json = st.session_state.result_json
+            page_json = result_json
+            if "results" in result_json:
+                page_json = {
+                    **result_json,
+                    "results": {
+                        **result_json["results"],
+                        "bindings": result_json["results"].get("bindings", [])[start_row:end_row],
+                    },
+                }
+            st.json(page_json, expanded=False)
             raw_json = json.dumps(
                 st.session_state.result_json,
                 indent=2,
