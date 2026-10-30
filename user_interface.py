@@ -829,6 +829,65 @@ with st.sidebar:
             label_visibility="collapsed",
         )
 
+    # Streamlit 1.59 uses a single-line input; keep the native combobox
+    # interactive and display its selected text in a wrapping CSS layer.
+    question_css_text = json.dumps(CQ_DEFINITIONS[selected_cq]["question"])
+    st.html(
+        "<style>"
+        ".st-key-selected_question_box { --cg-question-text: "
+        + question_css_text
+        + "; }"
+        + """
+        .st-key-selected_question_box .react-aria-ComboBox [role="group"] {
+            position: relative;
+            height: auto;
+            min-height: 2.5rem;
+            align-items: center;
+        }
+        .st-key-selected_question_box .react-aria-ComboBox [role="group"]::before {
+            content: var(--cg-question-text);
+            display: block;
+            flex: 1;
+            min-width: 0;
+            padding: 0.5rem 0.75rem;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.45;
+            pointer-events: none;
+        }
+        .st-key-selected_question_box .react-aria-ComboBox input[role="combobox"] {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: calc(100% - 2.5rem);
+            height: 100%;
+            opacity: 0;
+        }
+        .st-key-selected_question_box .react-aria-ComboBox input[aria-expanded="true"]:not([value=__CG_SELECTED_TEXT__]) {
+            opacity: 1;
+        }
+        .st-key-selected_question_box [role="group"]:has(input[aria-expanded="true"]:not([value=__CG_SELECTED_TEXT__]))::before {
+            visibility: hidden;
+        }
+        [role="listbox"][aria-label="Selected Question"] [role="presentation"] {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            height: auto !important;
+            width: 100% !important;
+            contain: none !important;
+        }
+        [role="listbox"][aria-label="Selected Question"] [role="option"],
+        [role="listbox"][aria-label="Selected Question"] [data-item-hl] {
+            height: auto;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            overflow: visible;
+            text-overflow: clip;
+        }
+        </style>
+        """.replace("__CG_SELECTED_TEXT__", question_css_text)
+    )
+
     if selected_cq == "Co-occurance of Terms in Paragraph":
         pair_1_term, pair_1_label = st.columns(2)
         with pair_1_term:
