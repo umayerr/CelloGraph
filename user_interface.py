@@ -684,12 +684,12 @@ st.markdown(
         .paragraph-id, .acknowledgement-title { color: var(--cg-ink); }
         .app-title { color: #176A70; }
         .app-subtitle, .acknowledgement-text, .output-empty { color: #627685; }
-        .selected-question { border-color: var(--cg-line); border-left: 4px solid var(--cg-accent); background: #ffffff; color: #263c48; }
+        .selected-question { border-color: var(--cg-line); background: #ffffff; color: #263c48; }
         .paragraph-card { border-color: var(--cg-line); background: #ffffff; }
         .paragraph-id { color: var(--cg-accent); }
         .paragraph-text { color: #263b46; }
         .output-empty { border-color: #afc9c9; background: #f5fbfa; }
-        .selected-question-label { font-size:.64rem; font-weight:800; letter-spacing:.12em; color:#12676a; margin-bottom:7px; }
+        .selected-question-label { font-size:.85rem; font-weight:800; letter-spacing:.12em; color:#12676a; margin-bottom:7px; }
         /* Same Selected Question card appearance, with a native dropdown inside. */
         [data-testid="stSidebar"] .st-key-selected_question_box {
             white-space: normal;
@@ -697,7 +697,6 @@ st.markdown(
             line-height: 1.45;
             padding: 0.75rem 0.85rem;
             border: 1px solid var(--cg-line);
-            border-left: 4px solid var(--cg-accent);
             border-radius: 0.6rem;
             background: #ffffff;
             color: #263c48;
@@ -709,6 +708,11 @@ st.markdown(
         }
         [data-testid="stSidebar"] .st-key-selected_question_box [data-testid="stSelectbox"] {
             margin: 0;
+        }
+        .st-key-selected_category input[role="combobox"],
+        .st-key-selected_category [data-baseweb="select"] [value],
+        [role="listbox"][aria-label="Category"] [role="option"] {
+            font-weight: 700;
         }
 
         .acknowledgement-box { border-left-color: var(--cg-accent); background: #f7faf9; }
