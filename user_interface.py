@@ -709,11 +709,6 @@ st.markdown(
         [data-testid="stSidebar"] .st-key-selected_question_box [data-testid="stSelectbox"] {
             margin: 0;
         }
-        .st-key-selected_category input[role="combobox"],
-        .st-key-selected_category [data-baseweb="select"] [value],
-        [role="listbox"][aria-label="Category"] [role="option"] {
-            font-weight: 700;
-        }
 
         .acknowledgement-box { border-left-color: var(--cg-accent); background: #f7faf9; }
         [data-testid="stSidebarUserContent"] {
@@ -820,11 +815,16 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
+    st.markdown(
+        '<div class="selected-question-label">CATEGORY</div>',
+        unsafe_allow_html=True,
+    )
     st.selectbox(
         "Category",
         options=list(CQ_CATEGORIES.keys()),
         key="selected_category",
         on_change=queue_selected_category,
+        label_visibility="collapsed",
     )
 
     category_questions = CQ_CATEGORIES[st.session_state.selected_category]
@@ -833,12 +833,12 @@ with st.sidebar:
         number = category_questions.index(cq_name) + 1
         return f"{number}. {CQ_DEFINITIONS[cq_name]['question']}"
 
-    # Keep the original Selected Question card styling; make its question selectable.
+    st.markdown(
+        '<div class="selected-question-label">SELECTED QUESTION</div>',
+        unsafe_allow_html=True,
+    )
+    # Keep the question selector inside its card, with the heading above it.
     with st.container(key="selected_question_box"):
-        st.markdown(
-            '<div class="selected-question-label">SELECTED QUESTION</div>',
-            unsafe_allow_html=True,
-        )
         selected_cq = st.selectbox(
             "Selected Question",
             options=category_questions,
