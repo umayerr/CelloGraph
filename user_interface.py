@@ -712,6 +712,15 @@ st.markdown(
         }
 
         .acknowledgement-box { border-left-color: var(--cg-accent); background: #f7faf9; }
+        [data-testid="stSidebarUserContent"] {
+            padding-bottom: 2rem;
+        }
+        [data-testid="stSidebarUserContent"] > div > [data-testid="stVerticalBlock"] {
+            min-height: calc(100dvh - 7rem);
+        }
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.acknowledgement-box) {
+            margin-top: auto;
+        }
         [data-testid="stMetric"] { background-color: #ffffff; border-color: var(--cg-line); }
         [data-testid="stMetricValue"] { color: var(--cg-accent); }
         [data-testid="stSidebar"] .stButton button[kind="primary"] {
